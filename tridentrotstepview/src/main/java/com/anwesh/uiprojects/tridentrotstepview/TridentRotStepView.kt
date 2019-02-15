@@ -206,6 +206,15 @@ class TridentRotStepView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    companion object {
+
+        fun create(activity : Activity) : TridentRotStepView {
+            val view : TridentRotStepView = TridentRotStepView(activity)
+            activity.setContentView(view)
+            return view 
+        }
+    }
 }
 
 
