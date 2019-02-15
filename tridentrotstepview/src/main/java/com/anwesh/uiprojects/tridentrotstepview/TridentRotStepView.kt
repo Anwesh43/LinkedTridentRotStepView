@@ -20,6 +20,7 @@ val strokeFactor : Int = 90
 val sizeFactor : Float = 2.9f
 val foreColor : Int = Color.parseColor("#4CAF50")
 val backColor : Int = Color.parseColor("#212121")
+val tridentSizeFactor : Float = 3f
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -36,16 +37,22 @@ fun Canvas.drawTRSNode(i : Int, scale : Float, paint : Paint) {
     paint.strokeCap = Paint.Cap.ROUND
     paint.strokeWidth = Math.min(w, h) / strokeFactor
     paint.color = foreColor
+    val offsetY : Float = size / tridentSizeFactor
+    val lineY : Float = size - offsetY
     save()
     translate(w / 2, gap * (i + 1))
     rotate(90f * (1 - 2 * (i % 2)) * scale.divideScale(1, 2))
-    drawLine(0f, size, 0f, -size/2, paint)
-    drawLine(-size/2, -size/2, size/2 , -size/2,paint)
+    drawLine(0f, size, 0f, -offsetY, paint)
+    drawLine(-size/2, -offsetY, size/2 , -offsetY,paint)
     save()
-    translate(0f, -size / 2)
+    translate(0f, -offsetY)
+    drawLine(0f, 0f, 0f, -lineY, paint)
     for (j in 0..(trids - 1)) {
         val sc : Float = scale.divideScale(0, 2).divideScale(j, trids)
-        drawLine(0f, 0f, 0f, -size / 4, paint)
+        save()
+        translate(-size / 2 + size * j, 0f)
+        drawLine(0f, 0f, 0f, (-lineY / 2) * sc, paint)
+        restore()
     }
     restore()
     restore()
@@ -212,7 +219,7 @@ class TridentRotStepView(ctx : Context) : View(ctx) {
         fun create(activity : Activity) : TridentRotStepView {
             val view : TridentRotStepView = TridentRotStepView(activity)
             activity.setContentView(view)
-            return view 
+            return view
         }
     }
 }
