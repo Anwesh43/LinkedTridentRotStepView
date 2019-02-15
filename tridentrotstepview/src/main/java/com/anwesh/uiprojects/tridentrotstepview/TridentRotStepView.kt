@@ -179,8 +179,30 @@ class TridentRotStepView(ctx : Context) : View(ctx) {
             }
         }
 
-        fun startUpating(cb : () -> Unit) {
+        fun startUpdating(cb : () -> Unit) {
             curr.startUpdating(cb)
+        }
+    }
+
+    data class Renderer(var view : TridentRotStepView) {
+
+        private val animator : Animator = Animator(view)
+        private val trs : TridentRotStep = TridentRotStep(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            trs.draw(canvas, paint)
+            animator.animate {
+                trs.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            trs.startUpdating {
+                animator.start()
+            }
         }
     }
 }
