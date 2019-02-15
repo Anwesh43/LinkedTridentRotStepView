@@ -45,7 +45,7 @@ fun Canvas.drawTRSNode(i : Int, scale : Float, paint : Paint) {
     translate(0f, -size / 2)
     for (j in 0..(trids - 1)) {
         val sc : Float = scale.divideScale(0, 2).divideScale(j, trids)
-        drawLine(0f, 0f, 0f, -size / 4)
+        drawLine(0f, 0f, 0f, -size / 4, paint)
     }
     restore()
     restore()
@@ -111,8 +111,52 @@ class TridentRotStepView(ctx : Context) : View(ctx) {
 
         fun stop() {
             if (animated) {
-                animated = false 
+                animated = false
             }
+        }
+    }
+
+    data class TRSNode(var i : Int, val state : State = State()) {
+
+        private var next : TRSNode? = null
+        private var prev : TRSNode? = null
+
+        init {
+            addNeighbor()
+        }
+
+        fun addNeighbor() {
+            if (i < nodes - 1) {
+                next = TRSNode(i + 1)
+                next?.prev = this
+            }
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            canvas.drawTRSNode(i, state.scale, paint)
+            next?.draw(canvas, paint)
+        }
+
+        fun update(cb : (Int, Float) -> Unit) {
+            state.update {
+                cb(i, it)
+            }
+        }
+
+        fun startUpdating(cb :() -> Unit) {
+            state.startUpdating(cb)
+        }
+
+        fun getNext(dir : Int, cb : () -> Unit) : TRSNode {
+            var curr : TRSNode? = prev
+            if (dir == 1) {
+                curr = next
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this
         }
     }
 }
